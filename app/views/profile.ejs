@@ -1,0 +1,26 @@
+<% if (message) { %>
+<div class="info"><%= message %></div>
+<% } %>
+<% if (error) { %>
+<div class="error"><%= error %></div>
+<% } %>
+
+<h1><%= user.email %>'s Profile</h1>
+<div class="name"><%= user.firstName %></div>
+<ul class="accounts">
+  <h2>Your library cards:</h2>
+  <% user.accounts.forEach(function(account){ %>
+    <li><%= account.name %><a href="/edit_account/<%=account.id%>">Edit</a><a href="/remove_account/<%= account.id %>">Remove</a></li>
+  <% }) %>
+</ul>
+
+<form id="add_account" method="post" action="/add_account">
+  <label for="id">Account ID number:</label>
+  <input name="id" type="text" />
+  <label for="name">Account Name:</label>
+  <input name="name" type="text" />
+  <label for="password">Password:</label>
+  <input id="password" name="password" type="password" />
+  <input name="submit" type="submit" value="Add Account" />
+</form>
+<a href="/logout">Logout</a>

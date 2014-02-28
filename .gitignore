@@ -5,3 +5,5 @@ docs/
 doc/*.html
 *.sw*
 *.tgz
+*.un~
+node_modules

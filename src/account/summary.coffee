@@ -22,142 +22,147 @@
 # If the plugin receives *refresh*, it will refresh all summary lines.
 
 define [
-	'eg/eg_api'
-	'eg/auth'
-	'template'
-	'plugin'
-	'account/fines'
-	'account/checkouts'
-	'account/holds'
+  'eg/eg_api'
+  'eg/auth'
+  'template'
+  'plugin'
+  'account/fines'
+  'account/checkouts'
+  'account/holds'
 ], (eg, auth, _) -> (($) ->
 
-	# ***
-	# Each summary line is implemented by a template,
-	# and a refresh function that will make the relevant service call
-	# to get data values and instantiate the template with them.
+  # ***
+  # Each summary line is implemented by a template,
+  # and a refresh function that will make the relevant service call
+  # to get data values and instantiate the template with them.
 
-	tpl_fines_summary = _.template '''
-	$<%= nf %> fines owing
-	'''
-	refresh_fines_summary = ->
-		$('#fines_summary').openils 'fines summary', 'actor.user.fines.summary.authoritative', (o) ->
-			$('.summary_line', @).text tpl_fines_summary
-				nf: nf = o.balance_owed
-		return false
+  tpl_fines_summary = _.template '''
+  $<%= nf %> fines owing
+  '''
+  refresh_fines_summary = ->
+    $('#fines_summary').openils 'fines summary', 'actor.user.fines.summary.authoritative', (o) ->
+      $('.summary_line', @).text tpl_fines_summary
+        nf: nf = o.balance_owed
+    return false
 
-	tpl_checkouts_summary = _.template '''
-	<%= nco %> items checked out,
-	<%= nod %> overdue,
-	<%= nxx %> other items
-	'''
-	refresh_checkouts_summary = ->
-		$('#checkouts_summary').openils 'checkouts summary', 'actor.user.checked_out.count.authoritative', (o) ->
-			$('.summary_line', @).text tpl_checkouts_summary
-				nco: nco = o.out
-				nod: nod = o.overdue
-				nxx: nxx = o.total - nco - nod
-		return false
+  tpl_checkouts_summary = _.template '''
+  <%= nco %> items checked out,
+  <%= nod %> overdue,
+  <%= nxx %> other items
+  '''
+  refresh_checkouts_summary = ->
+    $('#checkouts_summary').openils 'checkouts summary', 'actor.user.checked_out.count.authoritative', (o) ->
+      $('.summary_line', @).text tpl_checkouts_summary
+        nco: nco = o.out
+        nod: nod = o.overdue
+        nxx: nxx = o.total - nco - nod
+    return false
 
-	tpl_holds_summary = _.template '''
-	<%= nh %> items on hold
-	'''
-	refresh_holds_summary = ->
-		$('#holds_summary').openils 'holds summary', 'circ.holds.id_list.retrieve.authoritative', (o) ->
-			$('.summary_line', @).text tpl_holds_summary
-				nh: nh = o.length
-		return false
+  tpl_holds_summary = _.template '''
+  <%= nh %> items on hold
+  '''
+  refresh_holds_summary = ->
+    $('#holds_summary').openils 'holds summary', 'circ.holds.id_list.retrieve.authoritative', (o) ->
+      $('.summary_line', @).text tpl_holds_summary
+        nh: nh = o.length
+    return false
 
-	tpl_bookbags_summary = _.template '''
-	<%= nbb %> bookbags created
-	'''
-	refresh_bookbags_summary = ->
-		$('#bookbags_summary').openils 'bookbags summary', 'actor.container.retrieve_by_class', (o) ->
-			$('.summary_line', @).text tpl_bookbags_summary
-				nbb: nbb = o.length
-		return false
+  tpl_bookbags_summary = _.template '''
+  <%= nbb %> bookbags created
+  '''
+  refresh_bookbags_summary = ->
+    $('#bookbags_summary').openils 'bookbags summary', 'actor.container.retrieve_by_class', (o) ->
+      $('.summary_line', @).text tpl_bookbags_summary
+        nbb: nbb = o.length
+    return false
 
-	# ***
-	# Define a function to refresh all summary lines.
-	refresh_all = ->
-		refresh_fines_summary()
-		refresh_checkouts_summary()
-		refresh_holds_summary()
+  # ***
+  # Define a function to refresh all summary lines.
+  refresh_all = ->
+    console.log("refreshing all summaries")
+    refresh_fines_summary()
+    refresh_checkouts_summary()
+    refresh_holds_summary()
+    $('#account_fines').fines()
+    console.log("applying detail plugin")
+    $('#account_checkouts').checkouts()
+    $('#account_holds').holds()
 
+  # ***
+  # Define a jQuery plugin to show account summary lines.
+  $.fn.acct_summary = ->
+    return @ if @plugin()
+    @plugin('acct_summary')
+    # > FIXME:
+    # The main div may be inadvertently shown after a session timeout.
+    # This is because the plugin does not contain summary bars.
+    # receives logout_event, which is session timeout,
+    # and proceeds to empty div but div is always empty.
 
-	# ***
-	# Define a jQuery plugin to show account summary lines.
-	$.fn.acct_summary = ->
-		return @ if @plugin()
-		@plugin('acct_summary')
-		# > FIXME:
-		# The main div may be inadvertently shown after a session timeout.
-		# This is because the plugin does not contain summary bars.
-		# receives logout_event, which is session timeout,
-		# and proceeds to empty div but div is always empty.
+    # Upon applying the plugin,
+    # we will further apply account detail plugins to their containers.
+    $('#account_fines').fines()
+    console.log("applying detail plugin")
+    $('#account_checkouts').checkouts()
+    $('#account_holds').holds()
 
-		# Upon applying the plugin,
-		# we will further apply account detail plugins to their containers.
-		$('#account_fines').fines()
-		$('#account_checkouts').checkouts()
-		$('#account_holds').holds()
+    # We will refresh the summary lines if the user is already logged in,
+    # otherwise, we will retrieve a session object before we refresh.
+    if auth.logged_in()
+      refresh_all()
+    else
+      @openils 'account summaries', 'auth.session.retrieve', refresh_all
 
-		# We will refresh the summary lines if the user is already logged in,
-		# otherwise, we will retrieve a session object before we refresh.
-		if auth.logged_in()
-			refresh_all()
-		else
-			@openils 'account summaries', 'auth.session.retrieve', refresh_all
+    # Upon the user logging in,
+    # we will show the summary lines and refresh their content.
+    @subscribe 'session.login', =>
+      $('.account_summary', @).show()
+      refresh_all()
+      return false
+    # > FIXME:
+    # The main module already subscribes this plugin to the login_event
+    # when it dynamically loads this module.
 
-		# Upon the user logging in,
-		# we will show the summary lines and refresh their content.
-		@subscribe 'session.login', =>
-			$('.account_summary', @).show()
-			refresh_all()
-			return false
-		# > FIXME:
-		# The main module already subscribes this plugin to the login_event
-		# when it dynamically loads this module.
+    # Upon the user logging out, we will hide the summary lines.
+    .subscribe 'session.logout', =>
+      $('.account_summary', @).hide()
+      return false
 
-		# Upon the user logging out, we will hide the summary lines.
-		.subscribe 'session.logout', =>
-			$('.account_summary', @).hide()
-			return false
+    # Upon receiving a notice to a summary line, we will refresh it.
+    .subscribe('account.fines_summary', refresh_fines_summary)
+    .subscribe('account.checkouts_summary', refresh_checkouts_summary)
+    .subscribe('account.holds_summary', refresh_holds_summary)
+    .subscribe('account.bookbags_summary', refresh_bookbags_summary)
 
-		# Upon receiving a notice to a summary line, we will refresh it.
-		.subscribe('account.fines_summary', refresh_fines_summary)
-		.subscribe('account.checkouts_summary', refresh_checkouts_summary)
-		.subscribe('account.holds_summary', refresh_holds_summary)
-		.subscribe('account.bookbags_summary', refresh_bookbags_summary)
+    # Upon a plugin refresh, we will refresh all summary lines.
+    .refresh refresh_all
 
-		# Upon a plugin refresh, we will refresh all summary lines.
-		.refresh refresh_all
+    # Upon the user expanding/collapsing a summary line,
+    # we will refresh/empty its inner plugins.
+    $(@).on
+      expand: ->
+        $('.plugin', @).refresh()
+        # When expanding, the summary line itself should be refreshed,
+        # by having the inner plugin publish on a topic name that is
+        # determined by the h3 element id.
+        .publish "account.#{$('h3', @).prop 'id'}"
+        return
+      collapse: ->
+        $('.plugin', @).empty()
+        return
+      , '.account_summary'
 
-		# Upon the user expanding/collapsing a summary line,
-		# we will refresh/empty its inner plugins.
-		$(@).on
-			expand: ->
-				$('.plugin', @).refresh()
-				# When expanding, the summary line itself should be refreshed,
-				# by having the inner plugin publish on a topic name that is
-				# determined by the h3 element id.
-				.publish "account.#{$('h3', @).prop 'id'}"
-				return
-			collapse: ->
-				$('.plugin', @).empty()
-				return
-			, '.account_summary'
+    # Upon the user logging in,
+    # we will refresh a summary line's inner plugin content if the summary line is not collapsed.
+    .subscribe 'session.login', ->
+      $(ps).refresh() for ps in $('.plugin', @) when $(ps).closest('.ui-collapsible-content').prop('aria-hidden') is 'false'
+      return false
 
-		# Upon the user logging in,
-		# we will refresh a summary line's inner plugin content if the summary line is not collapsed.
-		.subscribe 'session.login', ->
-			$(ps).refresh() for ps in $('.plugin', @) when $(ps).closest('.ui-collapsible-content').prop('aria-hidden') is 'false'
-			return false
+    # Upon the user logging out,
+    # we will empty a summary line's inner plugin content if the summary line is not collapsed.
+    .subscribe 'session.logout', ->
+      $(ps).empty() for ps in $('.plugin', @) when $(ps).closest('.ui-collapsible-content').prop('aria-hidden') is 'false'
+      return false
 
-		# Upon the user logging out,
-		# we will empty a summary line's inner plugin content if the summary line is not collapsed.
-		.subscribe 'session.logout', ->
-			$(ps).empty() for ps in $('.plugin', @) when $(ps).closest('.ui-collapsible-content').prop('aria-hidden') is 'false'
-			return false
-
-		return @
+    return @
 )(jQuery)

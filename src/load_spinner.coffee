@@ -5,9 +5,9 @@ define ['plugin'], -> (($) ->
 	# It is actually a wrapper to use jQuery Mobile's 'page loading message' as the graphic.
 	$.fn.load_spinner = ->
 
-		show = -> $.mobile.showPageLoadingMsg()
+		show = -> $.mobile.loading("show")
 
-		hide = -> $.mobile.hidePageLoadingMsg()
+		hide = -> $.mobile.loading("hide")
 
 		# We show the spinner upon an ajax start event, and hide it upon an
 		# ajax stop or an ajax error event.

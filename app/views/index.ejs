@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC
+"-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<title>Mobile Catalogue v1.3.0</title>
+		<meta name="version" content="v1.3.0"></meta>
+		<meta name="build_date" content=""></meta>
+		<meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8"></meta>
+
+    <link rel="stylesheet" href="css/mobile_opac_wireframe.css"></link>
+    <link rel="stylesheet" href="/css/jquery.mobile-1.4.0.min.css"></link>
+    <link rel="stylesheet" href="css/jquery.mobile.simpledialog.css"></link>
+	</head>
+	<body>
+		<div id="startup">The web site is being loaded... </div>
+
+		<!-- Main page -->
+		<div id="main" data-role="page">
+
+      <div id="login_bar" data-role="header"></div>
+
+			<div data-role="ui-content">
+
+
+				<div id="account_summary" data-role="collapsible-set" data-inset="true">
+					<div data-role="collapsible" class="account_summary" data-inset="true">
+						<h3 id="fines_summary"><span class="summary_line"></span></h3>
+						<div id="account_fines"></div>
+					</div>
+
+					<div data-role="collapsible" class="account_summary" data-inset="true">
+						<h3 id="checkouts_summary"><span class="summary_line"></span></h3>
+						<div id="account_checkouts"></div>
+					</div>
+
+					<div data-role="collapsible" class="account_summary" data-inset="true">
+						<h3 id="holds_summary"><span class="summary_line"></span></h3>
+						<div id="account_holds"></div>
+					</div>
+				</div>
+
+				<div data-role="collapsible" data-inset="true">
+					<h3 id="opac_search">Search catalogue</h3>
+					<div>
+						<div id="search_result"></div>
+						<div id="search_bar"></div>
+					</div>
+				</div>
+			</div>
+
+			<div id="footer_bar" data-role="footer">
+				<span>
+					<a href="http://code.google.com/p/evergreen-mobile-opac" target="_blank">Software</a>
+				</span>
+				<span>
+					<a href="http://open-ils.org" target="_blank">Powered by <img src="images/eg_tiny_logo.jpg"/></a>
+				</span>
+			</div>
+		</div>
+
+
+		<!-- Secondary pages -->
+
+		<div id="messages" data-role="page">
+			<div data-role="content"></div>
+		</div>
+
+		<div id="payment_receipt" data-role="page" data-title="Payment Receipt">
+			<div data-role="header" class="title_bar">Payment Receipt</div>
+			<div data-role="ui-content"></div>
+		</div>
+
+		<div id="edit_hold" data-role="page" data-title="Title Details">
+			<div data-role="header" class="title_bar"></div>
+			<div data-role="ui-content" class="ui-content content"></div>
+		</div>
+
+		<div id="login_window" data-role="page">
+			<div data-role="header"><h3>Log in</h3></div>
+			<div data-role="ui-content" class="content"></div>
+		</div>
+
+		<div id="cover_art" data-role="page">
+			<div data-role="header"><h3>Cover Art</h3></div>
+			<div data-role="ui-content" class="content"></div>
+		</div>
+
+    <div id="account_login" date-role="page" data-inset="true">
+			<div data-role="header"><h3>Account Login</h3></div>
+			<div data-role="content" class="content" data-inset="true"></div>
+		</div>
+    <div id="account_signup" date-role="page" data-inset="true">
+			<div data-role="header"><h3>Register Your Account</h3></div>
+			<div data-role="content" class="content" data-inset="true"></div>
+		</div>
+    <div id="manage_account" date-role="page" data-inset="true">
+      <div data-role="header" class="manage_account">
+        <h3>Manage Account</h3>
+      </div>
+      <div data-role="content" class="content" data-inset="true">
+        <div id="card_list" data-role="ui-content"></div>
+      </div>
+    </div>
+
+
+    <script src='/js/lib/jquery-1.10.2.min.js'></script>
+		<!--script src='//code.jquery.com/jquery-migrate-1.2.1.js'></script-->
+		<script src='js/mobilesettings.js'></script>
+    <script src='/js/lib/jquery.mobile-1.4.0.min.js'></script>
+		<script src='js/lib/require-1.0.7.min.js' data-main='js/main.js'></script>
+    <% if (user) { %>
+      <% if (typeof user.accounts != 'undefined') { %>
+        <% if (typeof user.accounts[0] != 'undefined') { %>
+          <script>
+            // Use the first account as the default for now.
+            window.active_id = '<%- user.accounts[0].id %>';
+            window.active_password = '<%- user.accounts[0].password %>';
+            window.active_name = '<%- user.accounts[0].name %>';
+            window.accounts = <%- JSON.stringify(user.accounts) %>;
+          </script>
+        <% } %>
+      <% } %>
+    <% } %>
+	</body>
+</html>

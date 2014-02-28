@@ -101,6 +101,22 @@ dd {
 .search_bar .ui-slider-switch {
 	width: 12em;
 }
-div[data-role="page"] {
-	visibility: hidden;
+.info_box {
+  white-space: normal;
+}
+.ui-checkbox.ui-state-disabled {
+  opacity: 0.5;
+}
+
+a.ui-btn {
+  background-color: buttonface;
+  border: 1px solid buttonface;
+  text-shadow: none;
+}
+.ui-content {
+  background: #ffffff;
+}
+
+#manage_account {
+  display: none;
 }

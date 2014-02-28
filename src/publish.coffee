@@ -15,7 +15,7 @@ define -> (($) ->
 	# parameter, all of which will be available to the event handler as an
 	# extra parameters.
 	$.fn.publish = (topic, data) ->
-		#console.log "'#{@.prop 'id'}' publishing data", data, "to topic '#{topic}'"
+		console.log "'#{@.prop 'id'}' publishing data", data, "to topic '#{topic}'"
 		publish topic, [@, data]
 		return @
 
@@ -26,7 +26,7 @@ define -> (($) ->
 	# *subscribe* as an *on" parameter, which will be avaliable to the event
 	# handler in event.data.
 	$.fn.subscribe = (topics, cb) ->
-		#console.log "'#{@.prop 'id'}' subscribing to topics '#{topics}'"
+		console.log "'#{@.prop 'id'}' subscribing to topics '#{topics}'"
 		subscribe topics, @, (e, publisher, data) ->
 			pubID = publisher.prop 'id'
 			subscriber = e.data
@@ -40,9 +40,9 @@ define -> (($) ->
 				# Refresh the subscriber plugin with the callback result
 				# unless it is false.
 				subscriber.trigger '_', [result] unless result is false
-				#console.log "Subscription handled: '#{pubID}' > '#{subID}', topic '#{topics}', data", data
+				console.log "Subscription handled: '#{pubID}' > '#{subID}', topic '#{topics}', data", data
 			else
-				#console.log "Subscription not handled: '#{pubID}' > '#{subID}', topic '#{topics}', data", data
+				console.log "Subscription not handled: '#{pubID}' > '#{subID}', topic '#{topics}', data", data
 		return @
 
 

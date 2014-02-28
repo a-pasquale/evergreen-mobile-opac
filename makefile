@@ -27,7 +27,7 @@ tag =
 dirSrc = src
 # Directory containing application files, including html, css, images, and
 # javascript files
-dirApp = app
+dirApp = public
 # Directory containing all application files,
 # including compressed javascript and css files for deployment
 dirBuild = mobile
@@ -81,7 +81,8 @@ all : deploy docs doc
 # Coffeescript source files are modified they are compiled into Javascript
 # files.
 coffee :
-	$(CStoJS) -w -o $(dirApp)/js $(dirSrc) > /dev/null
+	$(CStoJS) -w -o $(dirApp)/js $(dirSrc) 
+	#$(CStoJS) -w -o $(dirApp)/js $(dirSrc) > /dev/null
 
 # Make main design document.
 doc : $(dirDoc)/design.html

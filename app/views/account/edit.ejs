@@ -1,0 +1,9 @@
+<form id="edit_account" method="post" action="/edit_account">
+  <label for="id">Account ID number:</label>
+  <input name="id" type="text" value="<%= account.id %>" />
+  <label for="name">Account Name:</label>
+  <input name="name" type="text" value="<%= account.name %>"/>
+  <label for="password">Password:</label>
+  <input id="password" name="password" type="password" />
+  <input name="submit" type="submit" value="Save Account" />
+</form>
