@@ -5,7 +5,6 @@
 var express = require('express'),
   fs = require('fs'),
   http = require('http'),
-  httpProxy = require('http-proxy'),
   path = require('path'),
   mongoose = require('mongoose'),
   passport = require("passport"),
@@ -78,8 +77,6 @@ var options = {
     '/opac/extras/ac': 'bark.cwmars.org/opac/extras/ac',
   }
 };
-
-var proxy = new httpProxy.RoutingProxy(options);
 
 module.exports = app;
 if (!module.parent) {
